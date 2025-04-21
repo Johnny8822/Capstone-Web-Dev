@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PV Information</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Solar PV Information</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="temperatures.html">Temperatures</a></li>
+                <li><a href="settings.html">Settings</a></li>
+                <li><a href="pv_info.html">PV Info</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Latest Solar PV Reading</h2>
+        <div id="pv-data">
+            Loading PV data...
+             <ul>
+                <li>Panel Voltage: <span id="pv-panel-v">N/A</span> V</li>
+                <li>Panel Current: <span id="pv-panel-c">N/A</span> A</li>
+                <li>Load Voltage: <span id="pv-load-v">N/A</span> V</li>
+                <li>Load Current: <span id="pv-load-c">N/A</span> A</li>
+                <li>Load Power: <span id="pv-load-p">N/A</span> W</li>
+                <li>Battery Voltage: <span id="pv-batt-v">N/A</span> V</li>
+                <li>Battery Current: <span id="pv-batt-c">N/A</span> A</li>
+                <li>Sunlight Intensity: <span id="pv-sun">N/A</span></li>
+                <li>Timestamp: <span id="pv-timestamp">N/A</span></li>
+            </ul>
+        </div>
+    </main>
+    <footer>
+        <p>Capstone Project Monitor</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
