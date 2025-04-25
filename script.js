@@ -19,39 +19,48 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Functions to update specific page content ---
 
   function updateTemperatures() {
-      const tbody = document.getElementById('temp-table-body');
-      if (!tbody) return; // Only run on temperatures.html
+    const tbody = document.getElementById('temp-table-body');
+    if (!tbody) return;
 
-      fetch(`${API_BASE_URL}/status`)
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-              return response.json();
-          })
-          .then(data => {
-              tbody.innerHTML = ''; // Clear previous data
-              if (data.temperatures && data.temperatures.length > 0) {
-                  data.temperatures.forEach(reading => {
-                      const row = tbody.insertRow();
-                      row.insertCell().textContent = reading.sensor_id || 'N/A';
-                      row.insertCell().textContent = reading.sensor_name || 'N/A';
-                      row.insertCell().textContent = reading.temperature !== null ? reading.temperature.toFixed(2) : 'N/A';
-                      row.insertCell().textContent = reading.sensor_type || 'N/A';
-                      row.insertCell().textContent = formatTimestamp(reading.timestamp);
-                  });
-              } else {
-                  tbody.innerHTML = '<tr><td colspan="5">No temperature data available.</td></tr>';
-              }
-              document.getElementById('temperature-data').classList.remove('loading');
-          })
-          .catch(error => {
-              console.error('Error fetching temperature data:', error);
-              tbody.innerHTML = `<tr><td colspan="5" class="error">Error loading data: ${error.message}</td></tr>`;
-              document.getElementById('temperature-data').classList.add('error');
-
-          });
-  }
+    fetch(`${API_BASE_URL}/status`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            tbody.innerHTML = ''; // Clear previous data
+            if (data.temperatures && data.temperatures.length > 0) {
+                data.temperatures.forEach(reading => {
+                    const row = tbody.insertRow();
+                    // Existing cells
+                    row.insertCell().textContent = reading.sensor_id || 'N/A';
+                    row.insertCell().textContent = reading.sensor_name || 'N/A';
+                    row.insertCell().textContent = reading.temperature !== null ? 
+                        reading.temperature.toFixed(2) + '°C' : 'N/A';
+                    row.insertCell().textContent = reading.sensor_type || 'N/A';
+                    
+                    // New battery level cell
+                    const batteryCell = row.insertCell();
+                    if (reading.battery_level !== null && reading.battery_level !== undefined) {
+                        batteryCell.textContent = `${(reading.battery_level * 100).toFixed(1)}%`; // Convert to percentage
+                    } else {
+                        batteryCell.textContent = 'N/A';
+                    }
+                    
+                    // Timestamp cell
+                    row.insertCell().textContent = formatTimestamp(reading.timestamp);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6">No temperature data available.</td></tr>';
+            }
+            document.getElementById('temperature-data').classList.remove('loading');
+        })
+        .catch(error => {
+            console.error('Error fetching temperature data:', error);
+            tbody.innerHTML = `<tr><td colspan="6" class="error">Error loading data: ${error.message}</td></tr>`;
+            document.getElementById('temperature-data').classList.add('error');
+        });
+}
 
   function updateSettings() {
       const settingsDiv = document.getElementById('settings-data');
