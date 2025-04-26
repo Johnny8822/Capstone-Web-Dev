@@ -296,9 +296,89 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
   
+    function updatePvInfo() {
+        const pvDiv = document.getElementById('pv-data');
+        // Find the specific span elements within pvDiv
+        const pvPanelVSpan = document.getElementById('pv-panel-v');
+        const pvPanelCSpan = document.getElementById('pv-panel-c');
+        const pvLoadVSpan = document.getElementById('pv-load-v');
+        const pvLoadCSpan = document.getElementById('pv-load-c');
+        const pvLoadPSpan = document.getElementById('pv-load-p');
+        const pvBattVSpan = document.getElementById('pv-batt-v');
+        const pvBattCSpan = document.getElementById('pv-batt-c');
+        const pvSunSpan = document.getElementById('pv-sun');
+        const pvTimestampSpan = document.getElementById('pv-timestamp');
+  
+  
+        if (!pvDiv || !pvPanelVSpan) { // Check if the main div and at least one span exist
+            console.log("updatePvInfo called, but required elements not found (pv-data or pv-panel-v).");
+            return; // Only run on pv_info.html if the div is present
+        }
+        console.log("updatePvInfo called. Fetching data from /status..."); // Log when fetching starts
+  
+        // This fetches temperature, solar, and settings data in one call
+        // Assuming /status endpoint is NOT under /api based on previous code
+        fetch(`${API_BASE_URL}/status`)
+            .then(response => {
+                 console.log("PV fetch response received.", response); // Log response
+                 if (!response.ok) {
+                    console.error(`HTTP error! Status: ${response.status}`, response); // Log error response
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                 }
+                 return response.json();
+            })
+            .then(data => {
+                 console.log("PV data received from /status:", data); // Log received data
+  
+                // The PV data is nested under the 'solar_data' key in the /status response
+                const pvData = data.solar_data;
+                 if (pvData) {
+                     console.log("Solar data found in response. Populating fields.");
+                     // Use != null check which covers both null and undefined
+                     pvPanelVSpan.textContent = pvData.panel_voltage != null ? pvData.panel_voltage.toFixed(2) : 'N/A';
+                     pvPanelCSpan.textContent = pvData.panel_current != null ? pvData.panel_current.toFixed(3) : 'N/A';
+                     pvLoadVSpan.textContent = pvData.load_voltage != null ? pvData.load_voltage.toFixed(2) : 'N/A';
+                     pvLoadCSpan.textContent = pvData.load_current != null ? pvData.load_current.toFixed(3) : 'N/A';
+                     pvLoadPSpan.textContent = pvData.load_power != null ? pvData.load_power.toFixed(2) : 'N/A';
+                     pvBattVSpan.textContent = pvData.battery_voltage != null ? pvData.battery_voltage.toFixed(2) : 'N/A';
+                     pvBattCSpan.textContent = pvData.battery_current != null ? pvData.battery_current.toFixed(3) : 'N/A';
+                     pvSunSpan.textContent = pvData.sunlight_intensity != null ? pvData.sunlight_intensity.toFixed(1) : 'N/A';
+                     pvTimestampSpan.textContent = formatTimestamp(pvData.timestamp);
+  
+                 } else {
+                    console.warn("No solar_data found in /status response."); // Log if no PV data
+                    // Display 'N/A' or loading message if no data is present
+                    pvPanelVSpan.textContent = 'N/A';
+                    pvPanelCSpan.textContent = 'N/A';
+                    pvLoadVSpan.textContent = 'N/A';
+                    pvLoadCSpan.textContent = 'N/A';
+                    pvLoadPSpan.textContent = 'N/A';
+                    pvBattVSpan.textContent = 'N/A';
+                    pvBattCSpan.textContent = 'N/A';
+                    pvSunSpan.textContent = 'N/A';
+                    pvTimestampSpan.textContent = 'N/A';
+                    // You could also show a specific message if preferred
+                    // pvDiv.innerHTML = '<p>No PV data available.</p>';
+                 }
+                 // Remove loading class regardless of whether data was found
+                 pvDiv.classList.remove('loading'); // Assuming you have a .loading class in CSS
+                 console.log("PV data population finished."); // Log finish
+            })
+            .catch(error => {
+                 console.error('Error fetching PV data:', error);
+                 // Update the PV data div with an error message
+                 pvDiv.innerHTML = `<p class="error">Error loading PV data: ${error.message}</p>`;
+                 pvDiv.classList.remove('loading');
+                 pvDiv.classList.add('error'); // Add error class for potential CSS styling
+            });
+    }
+  
+  // ... (rest of the script inside DOMContentLoaded) ...
   
     // --- Initial data load based on the current page ---
     
+    // --- Initial data load based on the current page ---
+
     if (pathname === '/temperatures') {
         console.log("On temperatures page. Initializing.");
         updateTemperatures();
