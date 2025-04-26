@@ -85,43 +85,50 @@ document.addEventListener('DOMContentLoaded', () => {
           });
   }
   
+    // script.js
+
+// ... (previous code) ...
+
     function updateSettings() {
         const settingsDiv = document.getElementById('settings-data');
-        if (!settingsDiv) return; // Only run on settings.html
-        console.log("updateSettings called. Fetching data..."); // Log when fetching starts
-  
-  
-        fetch(`${API_BASE_URL}/settings`) // Use dedicated settings endpoint
-            .then(response => {
-                 console.log("Settings fetch response received.", response); // Log response
-                 if (!response.ok) {
-                     console.error(`HTTP error! Status: ${response.status}`, response); // Log error response
-                     throw new Error(`HTTP error! Status: ${response.status}`);
-                 }
-                 return response.json();
-                 })
-            .then(settings => {
-                 console.log("Settings data received:", settings); // Log the received data
-                 if (settings) {
+        if (!settingsDiv) return;
+        console.log("updateSettings called. Fetching data...");
+
+    // *** CHANGE THIS LINE ***
+       fetch(`${API_BASE_URL}/api/settings`) // Fetch from the new API endpoint URL
+           .then(response => {
+                console.log("Settings fetch response received.", response);
+                if (!response.ok) {
+                    console.error(`HTTP error! Status: ${response.status}`, response);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+               }
+            return response.json();
+        })
+        .then(settings => {
+               console.log("Settings data received:", settings);
+                if (settings) {
+                    // Use != null check
                     document.getElementById('setpoint').textContent = settings.temperature_setpoint != null ? settings.temperature_setpoint.toFixed(1) : 'N/A';
-                     // Handle potential null for time objects explicitly if needed, though direct assignment might work
+                    // Handle potential null for time objects explicitly if needed, though direct assignment might work
                     document.getElementById('timer-on').textContent = settings.ac_timer_on || 'N/A';
                     document.getElementById('timer-off').textContent = settings.ac_timer_off || 'N/A';
                     document.getElementById('fan1-speed').textContent = settings.fan_1_speed_percent != null ? settings.fan_1_speed_percent : 'N/A';
                     document.getElementById('fan2-speed').textContent = settings.fan_2_speed_percent != null ? settings.fan_2_speed_percent : 'N/A';
                     document.getElementById('settings-updated').textContent = formatTimestamp(settings.updated_at);
-                 } else {
-                     throw new Error("Settings data is missing or empty.");
-                 }
-                 settingsDiv.classList.remove('loading');
-                 console.log("Settings data population finished."); // Log finish
+                } else {
+                    throw new Error("Settings data is missing or empty.");
+                }
+                settingsDiv.classList.remove('loading');
+                console.log("Settings data population finished.");
             })
             .catch(error => {
-                 console.error('Error fetching settings data:', error);
-                 settingsDiv.innerHTML = `<p class="error">Error loading settings: ${error.message}</p>`;
-                 settingsDiv.classList.add('error');
+                console.error('Error fetching settings data:', error);
+                settingsDiv.innerHTML = `<p class="error">Error loading settings: ${error.message}</p>`;
+                settingsDiv.classList.add('error');
             });
     }
+
+// ... (rest of script.js) ...
   
      function updatePvInfo() {
         const pvDiv = document.getElementById('pv-data');
