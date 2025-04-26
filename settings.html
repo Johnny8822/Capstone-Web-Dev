@@ -19,18 +19,36 @@
         </nav>
     </header>
     <main>
-        <h2>Current Settings</h2>
-        <div id="settings-data">
-            Loading settings data...
-            <ul>
-                <li>Temperature Setpoint: <span id="setpoint">N/A</span> °C</li>
-                <li>AC Timer On: <span id="timer-on">N/A</span></li>
-                <li>AC Timer Off: <span id="timer-off">N/A</span></li>
-                <li>Fan 1 Speed: <span id="fan1-speed">N/A</span> %</li>
-                <li>Fan 2 Speed: <span id="fan2-speed">N/A</span> %</li>
-                <li>Last Updated: <span id="settings-updated">N/A</span></li>
-            </ul>
-             </div>
+        <h2>Edit Settings</h2>
+        <div id="settings-editor">
+            <p>Loading settings data...</p>
+            <div id="settings-form" style="display: none;">
+                 <ul>
+                    <li>
+                        <label for="setpoint-input">Temperature Setpoint (°C):</label>
+                        <input type="number" id="setpoint-input" step="0.1" min="0" max="100">
+                    </li>
+                    <li>
+                        <label for="timer-on-input">AC Timer On:</label>
+                         <input type="time" id="timer-on-input">
+                    </li>
+                    <li>
+                        <label for="timer-off-input">AC Timer Off:</label>
+                         <input type="time" id="timer-off-input">
+                    </li>
+                    <li>
+                        <label for="fan1-speed-input">Fan 1 Speed (%):</label>
+                        <input type="number" id="fan1-speed-input" min="0" max="100">
+                    </li>
+                    <li>
+                        <label for="fan2-speed-input">Fan 2 Speed (%):</label>
+                        <input type="number" id="fan2-speed-input" min="0" max="100">
+                    </li>
+                </ul>
+                <button id="save-settings-button">Save Settings</button>
+                <p id="save-status-message"></p> <p>Last Updated: <span id="settings-updated">N/A</span></p>
+            </div>
+             <p id="loading-error-message"></p> </div>
     </main>
     <footer>
         <p>Capstone Project Monitor</p>
