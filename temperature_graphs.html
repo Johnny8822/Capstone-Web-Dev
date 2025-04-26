@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Graphs</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+<body>
+    <header>
+        <h1>Temperature Trends</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/temperatures">Temperatures</a></li>
+                <li><a href="/settings">Settings</a></li>
+                <li><a href="/pv_info">PV Info</a></li>
+                <li><a href="/temperature_graphs">Graphs</a></li> </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Temperature Readings Over Time</h2>
+
+        <div id="graph-controls">
+            <label for="sensor-select">Select Sensor:</label>
+            <select id="sensor-select">
+                <option value="">All Sensors</option>
+            </select>
+             <label for="time-range-select">Time Range:</label>
+            <select id="time-range-select">
+                <option value="1h">Last Hour</option>
+                <option value="6h">Last 6 Hours</option>
+                <option value="1d" selected>Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="all">All Data</option>
+            </select>
+            <button id="refresh-graph-button">Refresh Graph</button>
+        </div>
+
+        <div id="graph-container">
+            <canvas id="temperatureChart"></canvas>
+             <p id="graph-status-message"></p> </div>
+
+    </main>
+    <footer>
+        <p>Capstone Project Monitor</p>
+    </footer>
+    <script src="/static/script.js"></script> </body>
+</html>
