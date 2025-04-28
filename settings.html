@@ -3,51 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings</title>
+    <title>System Settings & Status</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <header>
-        <h1>System Settings</h1>
+        <h1>System Settings & Status</h1>
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/temperatures">Temperatures</a></li>
                 <li><a href="/settings">Settings</a></li>
                 <li><a href="/pv_info">PV Info</a></li>
-                <li><a href="/temperature_graphs">Graphs</a></li> </ul>
+                <li><a href="/temperature_graphs">Graphs</a></li>
+            </ul>
         </nav>
     </header>
     <main>
-        <h2>Edit Settings</h2>
+        <h2>System Control Parameters & Live Status</h2>
+         <p>Update settings below and see the live status of cooling components.</p>
         <div id="settings-editor">
-            <p>Loading settings data...</p>
-            <div id="settings-form" style="display: none;">
-                 <ul>
-                    <li>
-                        <label for="setpoint-input">Temperature Setpoint (°C):</label>
-                        <input type="number" id="setpoint-input" step="0.1" min="0" max="100">
-                    </li>
-                    <li>
-                        <label for="timer-on-input">AC Timer On:</label>
-                         <input type="time" id="timer-on-input">
-                    </li>
-                    <li>
-                        <label for="timer-off-input">AC Timer Off:</label>
-                         <input type="time" id="timer-off-input">
-                    </li>
-                    <li>
-                        <label for="fan1-speed-input">Fan 1 Speed (%):</label>
-                        <input type="number" id="fan1-speed-input" min="0" max="100">
-                    </li>
-                    <li>
-                        <label for="fan2-speed-input">Fan 2 Speed (%):</label>
-                        <input type="number" id="fan2-speed-input" min="0" max="100">
-                    </li>
-                </ul>
-                <button id="save-settings-button">Save Settings</button>
-                <p id="save-status-message"></p> <p>Last Updated: <span id="settings-updated">N/A</span></p>
-            </div>
+            <p id="loading-message">Loading settings data...</p> <div id="settings-form" style="display: none;">
+                 <div class="control-group">
+                     <h3>General Settings</h3>
+                     <ul>
+                         <li class="control-item">
+                              <label for="setpoint-input">Temperature Setpoint (°C):</label>
+                              <div class="input-control">
+                                 <input type="number" id="setpoint-input" step="0.1" min="-50" max="150">
+                              </div>
+                         </li>
+                         <li class="control-item">
+                              <label for="timer-on-input">AC Timer On:</label>
+                               <div class="input-control">
+                                  <input type="time" id="timer-on-input">
+                               </div>
+                         </li>
+                         <li class="control-item">
+                              <label for="timer-off-input">AC Timer Off:</label>
+                              <div class="input-control">
+                                 <input type="time" id="timer-off-input">
+                              </div>
+                         </li>
+                     </ul>
+                 </div>
+
+                 <div class="control-group">
+                     <h3>Cooling Block 1</h3>
+                     <p>Controlled by ESP32 Pin 1 (Example)</p>
+                     <ul>
+                         <li class="control-item">
+                             <label>Fan 1 (Hot Side):</label>
+                             <div class="input-control">
+                                  Speed: <span id="fan1-speed-display" class="speed-display">N/A</span>%
+                                  Status: <span id="block1-fan1-status" class="status-indicator unknown" title="Fan 1 Status"></span>
+                             </div>
+                         </li>
+                         <li class="control-item">
+                              <label for="fan4-speed-input">Fan 4 Speed (%):</label>
+                              <div class="input-control">
+                                   <input type="range" id="fan4-speed-input" min="0" max="100" value="50">
+                                  <span id="fan4-speed-value" class="slider-value">50</span>%
+                                   Status: <span id="block1-fan4-status" class="status-indicator unknown" title="Fan 4 Status"></span>
+                              </div>
+                         </li>
+                         <li class="control-item">
+                              <label>Pump 1:</label>
+                              <div class="input-control">
+                                  Status: <span id="block1-pump1-status" class="status-indicator unknown" title="Pump 1 Status"></span>
+                              </div>
+                         </li>
+                          <li class="control-item">
+                              <label>Peltier Block 1:</label>
+                              <div class="input-control">
+                                  Status: <span id="block1-peltier1-status" class="status-indicator unknown" title="Peltier Block 1 Status"></span>
+                              </div>
+                         </li>
+                     </ul>
+                 </div>
+
+                 <div class="control-group">
+                     <h3>Cooling Block 2</h3>
+                     <p>Controlled by ESP32 Pin 2 (Example)</p>
+                     <ul>
+                          <li class="control-item">
+                             <label>Fan 3 (Hot Side):</label>
+                             <div class="input-control">
+                                  Speed: <span id="fan3-speed-display" class="speed-display">N/A</span>%
+                                   Status: <span id="block2-fan3-status" class="status-indicator unknown" title="Fan 3 Status"></span>
+                             </div>
+                         </li>
+                         <li class="control-item">
+                             <label for="fan2-speed-input">Fan 2 Speed (%):</label>
+                             <div class="input-control">
+                                  <input type="range" id="fan2-speed-input" min="0" max="100" value="50">
+                                 <span id="fan2-speed-value" class="slider-value">50</span>%
+                                  Status: <span id="block2-fan2-status" class="status-indicator unknown" title="Fan 2 Status"></span>
+                             </div>
+                         </li>
+                          <li class="control-item">
+                              <label>Pump 2:</label>
+                              <div class="input-control">
+                                  Status: <span id="block2-pump2-status" class="status-indicator unknown" title="Pump 2 Status"></span>
+                              </div>
+                         </li>
+                          <li class="control-item">
+                              <label>Peltier Block 2:</label>
+                              <div class="input-control">
+                                  Status: <span id="block2-peltier2-status" class="status-indicator unknown" title="Peltier Block 2 Status"></span>
+                              </div>
+                         </li>
+                     </ul>
+                 </div>
+
+                 <button id="save-settings-button">Save Settings</button>
+                 <p id="save-status-message" style="margin-top: 10px;"></p> <p style="margin-top: 10px;">Last Updated (Settings): <span id="settings-updated">N/A</span></p>
+                 </div>
              <p id="loading-error-message"></p> </div>
     </main>
     <footer>
