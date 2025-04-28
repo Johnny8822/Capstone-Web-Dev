@@ -5,6 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Settings & Status</title>
     <link rel="stylesheet" href="/static/style.css">
+     <style>
+         /* Basic styling for status indicators */
+         .status-indicator {
+             display: inline-block;
+             width: 12px;
+             height: 12px;
+             border-radius: 50%;
+             margin-left: 5px;
+             vertical-align: middle;
+         }
+         .status-indicator.on {
+             background-color: green;
+         }
+         .status-indicator.off {
+             background-color: red;
+         }
+         .status-indicator.unknown {
+              background-color: grey; /* For initial or missing status */
+         }
+
+         /* Style for slider value display */
+         .slider-value {
+             display: inline-block;
+             width: 3em; /* Give it some width to prevent jumpiness */
+             text-align: right;
+             font-weight: bold;
+         }
+
+          /* Style for non-controllable speed display */
+         .speed-display {
+             display: inline-block;
+             width: 3em; /* Give it some width to prevent jumpiness */
+             text-align: right;
+             font-weight: bold;
+             margin-right: 5px; /* Space between value and % */
+         }
+
+
+         /* Grouping styles */
+         .control-group {
+             border: 1px solid #ccc;
+             padding: 15px;
+             margin-bottom: 20px;
+             border-radius: 5px;
+             background-color: #f9f9f9;
+         }
+
+         .control-group h3 {
+             margin-top: 0;
+             color: #0056b3;
+         }
+
+         .control-group ul {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+         }
+
+         .control-group ul li {
+             background-color: transparent; /* Remove li background */
+             padding: 8px 0; /* Adjust padding */
+             margin-bottom: 5px;
+             border-bottom: 1px dashed #eee; /* Add separator */
+         }
+
+         .control-group ul li:last-child {
+              border-bottom: none;
+         }
+
+         .control-group label {
+             display: inline-block;
+             margin-bottom: 5px;
+             font-weight: bold;
+             width: 180px; /* Give labels a fixed width for alignment */
+         }
+
+         .control-group input[type="number"],
+         .control-group input[type="time"] {
+             padding: 5px;
+             margin-right: 10px;
+         }
+
+          .control-item {
+              display: flex; /* Use flexbox for alignment */
+              align-items: center;
+              flex-wrap: wrap; /* Allow wrapping on small screens */
+          }
+
+         .control-item label {
+             flex-basis: 180px; /* Give labels more width */
+             margin-bottom: 0;
+             margin-right: 10px;
+         }
+
+          .control-item .input-control {
+              flex-grow: 1; /* Allow input area to take up space */
+              display: flex; /* Flex inside for slider/value/status */
+              align-items: center;
+          }
+
+         .control-item input[type="range"] {
+             flex-grow: 1; /* Slider takes up most space */
+             margin-right: 10px;
+             max-width: 250px; /* Limit slider width */
+         }
+
+
+     </style>
 </head>
 <body>
     <header>
@@ -15,8 +123,7 @@
                 <li><a href="/temperatures">Temperatures</a></li>
                 <li><a href="/settings">Settings</a></li>
                 <li><a href="/pv_info">PV Info</a></li>
-                <li><a href="/temperature_graphs">Graphs</a></li>
-            </ul>
+                <li><a href="/temperature_graphs">Graphs</a></li> </ul>
         </nav>
     </header>
     <main>

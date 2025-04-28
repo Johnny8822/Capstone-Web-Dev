@@ -5,29 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Graphs</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.umd.min.js"></script>
+     <style>
+         /* Basic styling for the graph container */
+         #graph-container {
+             position: relative; /* Needed for loading indicator overlay */
+             width: 100%;
+             height: 400px; /* Adjust height as needed */
+             margin-top: 20px;
+             background-color: #fff; /* Background for graph area */
+             border: 1px solid #ddd;
+             box-shadow: 0 0 8px rgba(0,0,0,0.05);
+             padding: 10px;
+             box-sizing: border-box; /* Include padding in element's total width and height */
+         }
+
+          /* Optional: Loading overlay for graph */
+         #graph-container.loading::before {
+            content: 'Loading graph data...';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #333;
+            z-index: 10; /* Above the canvas */
+         }
+
+
+         /* Style for graph controls */
+         .graph-controls {
+             margin-bottom: 15px;
+             background-color: #f9f9f9;
+             padding: 10px;
+             border: 1px solid #eee;
+             border-radius: 5px;
+             display: flex;
+             gap: 15px; /* Space between controls */
+             align-items: center;
+             flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+         }
+
+         .graph-controls label {
+             font-weight: bold;
+         }
+
+         .graph-controls select,
+         .graph-controls button {
+             padding: 5px 10px;
+             border-radius: 3px;
+             border: 1px solid #ccc;
+         }
+
+         .graph-controls button {
+             background-color: #0056b3;
+             color: white;
+             cursor: pointer;
+             border: none;
+         }
+
+         .graph-controls button:hover {
+             background-color: #003f7f;
+         }
+
+          #graph-status-message {
+             margin-top: 10px;
+             font-style: italic;
+          }
+
+     </style>
+</head>
 <body>
     <header>
-        <h1>Temperature Trends</h1>
+        <h1>Temperature Graphs</h1>
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/temperatures">Temperatures</a></li>
                 <li><a href="/settings">Settings</a></li>
                 <li><a href="/pv_info">PV Info</a></li>
-                <li><a href="/temperature_graphs">Graphs</a></li> </ul>
+                 <li><a href="/temperature_graphs">Graphs</a></li> </ul>
         </nav>
     </header>
     <main>
-        <h2>Temperature Readings Over Time</h2>
+        <h2>Historical Temperature Data</h2>
 
-        <div id="graph-controls">
+        <div class="graph-controls">
             <label for="sensor-select">Select Sensor:</label>
             <select id="sensor-select">
                 <option value="">All Sensors</option>
-            </select>
-             <label for="time-range-select">Time Range:</label>
+                </select>
+
+            <label for="time-range-select">Time Range:</label>
             <select id="time-range-select">
                 <option value="1h">Last Hour</option>
                 <option value="6h">Last 6 Hours</option>
@@ -35,16 +110,19 @@
                 <option value="7d">Last 7 Days</option>
                 <option value="all">All Data</option>
             </select>
+
             <button id="refresh-graph-button">Refresh Graph</button>
         </div>
 
-        <div id="graph-container">
-            <canvas id="temperatureChart"></canvas>
-             <p id="graph-status-message"></p> </div>
+         <p id="graph-status-message"></p> <div id="graph-container">
+             <canvas id="temperatureChart"></canvas>
+        </div>
+
 
     </main>
     <footer>
         <p>Capstone Project Monitor</p>
     </footer>
-    <script src="/static/script.js"></script> </body>
+    <script src="/static/script.js"></script>
+</body>
 </html>

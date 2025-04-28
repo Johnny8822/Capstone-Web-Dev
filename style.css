@@ -1,3 +1,5 @@
+/* static/style.css */
+
 body {
   font-family: sans-serif;
   margin: 0;
@@ -69,19 +71,21 @@ tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-ul {
+/* Styles for lists that are not navigation */
+main ul {
   list-style: none;
   padding: 0;
 }
 
-ul li {
+main ul li {
   margin-bottom: 0.5rem;
-  background-color: #eee;
-  padding: 10px;
-  border-radius: 3px;
+  /* Removed background-color and padding for main ul li
+     to allow control-group styling to take precedence */
+   background-color: transparent; /* Ensure no default li background */
+   padding: 0; /* Ensure no default li padding */
 }
 
-ul li span {
+main ul li span {
   font-weight: bold;
   color: #0056b3;
 }
@@ -92,111 +96,6 @@ footer {
   margin-top: 20px;
   padding: 10px;
   color: #777;
-} 
-
- /* Basic styling for status indicators */
- .status-indicator {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-left: 5px;
-  vertical-align: middle;
-}
-.status-indicator.on {
-  background-color: green;
-}
-.status-indicator.off {
-  background-color: red;
-}
-.status-indicator.unknown {
-   background-color: grey; /* For initial or missing status */
-}
-
-/* Style for slider value display */
-.slider-value {
-  display: inline-block;
-  width: 3em; /* Give it some width to prevent jumpiness */
-  text-align: right;
-  font-weight: bold;
-}
-
-/* Style for non-controllable speed display */
-.speed-display {
-  display: inline-block;
-  width: 3em; /* Give it some width to prevent jumpiness */
-  text-align: right;
-  font-weight: bold;
-  margin-right: 5px; /* Space between value and % */
-}
-
-
-/* Grouping styles */
-.control-group {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.control-group h3 {
-  margin-top: 0;
-  color: #0056b3;
-}
-
-.control-group ul {
-   list-style: none;
-   padding: 0;
-   margin: 0;
-}
-
-.control-group ul li {
-  background-color: transparent; /* Remove li background */
-  padding: 8px 0; /* Adjust padding */
-  margin-bottom: 5px;
-  border-bottom: 1px dashed #eee; /* Add separator */
-}
-
-.control-group ul li:last-child {
-   border-bottom: none;
-}
-
-.control-group label {
-  display: inline-block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  width: 180px; /* Give labels a fixed width for alignment */
-}
-
-.control-group input[type="number"],
-.control-group input[type="time"] {
-  padding: 5px;
-  margin-right: 10px;
-}
-
-.control-item {
-   display: flex; /* Use flexbox for alignment */
-   align-items: center;
-   flex-wrap: wrap; /* Allow wrapping on small screens */
-}
-
-.control-item label {
-  flex-basis: 180px; /* Give labels more width */
-  margin-bottom: 0;
-  margin-right: 10px;
-}
-
-.control-item .input-control {
-   flex-grow: 1; /* Allow input area to take up space */
-   display: flex; /* Flex inside for slider/value/status */
-   align-items: center;
-}
-
-.control-item input[type="range"] {
-  flex-grow: 1; /* Slider takes up most space */
-  margin-right: 10px;
-  max-width: 250px; /* Limit slider width */
 }
 
 /* Placeholder for loading/error messages */
@@ -208,3 +107,184 @@ footer {
   color: red;
   font-weight: bold;
 }
+
+
+/* --- Styles moved from inline settings.html --- */
+
+/* Basic styling for status indicators */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+.status-indicator.on {
+    background-color: green;
+}
+.status-indicator.off {
+    background-color: red;
+}
+.status-indicator.unknown {
+     background-color: grey; /* For initial or missing status */
+}
+
+/* Style for slider value display */
+.slider-value {
+    display: inline-block;
+    width: 3em; /* Give it some width to prevent jumpiness */
+    text-align: right;
+    font-weight: bold;
+}
+
+ /* Style for non-controllable speed display */
+.speed-display {
+    display: inline-block;
+    width: 3em; /* Give it some width to prevent jumpiness */
+    text-align: right;
+    font-weight: bold;
+    margin-right: 5px; /* Space between value and % */
+}
+
+
+/* Grouping styles (used in settings.html) */
+.control-group {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.control-group h3 {
+    margin-top: 0;
+    color: #0056b3;
+}
+
+.control-group ul {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+}
+
+.control-group ul li {
+    background-color: transparent; /* Remove li background */
+    padding: 8px 0; /* Adjust padding */
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #eee; /* Add separator */
+}
+
+.control-group ul li:last-child {
+     border-bottom: none;
+}
+
+.control-group label {
+    display: inline-block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    width: 180px; /* Give labels a fixed width for alignment */
+}
+
+.control-group input[type="number"],
+.control-group input[type="time"] {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+ .control-item {
+     display: flex; /* Use flexbox for alignment */
+     align-items: center;
+     flex-wrap: wrap; /* Allow wrapping on small screens */
+ }
+
+.control-item label {
+    flex-basis: 180px; /* Give labels more width */
+    margin-bottom: 0;
+    margin-right: 10px;
+}
+
+ .control-item .input-control {
+     flex-grow: 1; /* Allow input area to take up space */
+     display: flex; /* Flex inside for slider/value/status */
+     align-items: center;
+ }
+
+.control-item input[type="range"] {
+    flex-grow: 1; /* Slider takes up most space */
+    margin-right: 10px;
+    max-width: 250px; /* Limit slider width */
+}
+
+/* --- Styles for temperature_graphs.html --- */
+
+/* Basic styling for the graph container */
+#graph-container {
+    position: relative; /* Needed for loading indicator overlay */
+    width: 100%;
+    height: 400px; /* Adjust height as needed */
+    margin-top: 20px;
+    background-color: #fff; /* Background for graph area */
+    border: 1px solid #ddd;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    padding: 10px;
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+ /* Optional: Loading overlay for graph */
+#graph-container.loading::before {
+   content: 'Loading graph data...';
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(255, 255, 255, 0.8);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-size: 1.2em;
+   color: #333;
+   z-index: 10; /* Above the canvas */
+}
+
+
+/* Style for graph controls */
+.graph-controls {
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    display: flex;
+    gap: 15px; /* Space between controls */
+    align-items: center;
+    flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+}
+
+.graph-controls label {
+    font-weight: bold;
+}
+
+.graph-controls select,
+.graph-controls button {
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.graph-controls button {
+    background-color: #0056b3;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+.graph-controls button:hover {
+    background-color: #003f7f;
+}
+
+ #graph-status-message {
+    margin-top: 10px;
+    font-style: italic;
+ }
