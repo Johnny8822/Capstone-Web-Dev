@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = 'http://192.168.100.246:8000'; // CHANGE THIS to your VM's IP and port
 
     // Get the pathname to identify the current page
-    const pathname = document.location.pathname; // Get the whole pathname
+    const pathname = document.location.pathname; // <-- Keep this declaration
 
     // Variable to hold the Chart.js instance (used on the graphs page)
     let temperatureChartInstance = null;
@@ -91,8 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch (e) {
                             console.error("Error populating row for reading:", reading, e); // Log error if row fails
                             // Optionally add a placeholder row indicating the error
-                            const errorRow = tbody.insertRow();
-                            errorRow.innerHTML = `<td colspan="6" class="error">Error displaying data for one reading. See console.</td>`;
+                            const errorRow = tbody.insertCell(); // Use insertCell for a single cell spanning columns
+                            errorRow.colSpan = 6; // Span across all columns
+                            errorRow.classList.add('error');
+                            errorRow.textContent = 'Error displaying data for one reading. See console.';
+
                         }
                     });
                 } else {
@@ -249,16 +252,23 @@ document.addEventListener('DOMContentLoaded', () => {
                  document.getElementById('setpoint-input').value = settings.temperature_setpoint != null ? settings.temperature_setpoint : '';
                  document.getElementById('timer-on-input').value = settings.ac_timer_on || ''; // ac_timer_on will be a string like "07:00:00"
                  document.getElementById('timer-off-input').value = settings.ac_timer_off || '';
-                 document.getElementById('fan4-speed-input').value = settings.fan_4_speed_percent != null ? settings.fan_4_speed_percent : ''; // Populate Fan 4 speed slider
-                 document.getElementById('fan2-speed-input').value = settings.fan_2_speed_percent != null ? settings.fan_2_speed_percent : ''; // Populate Fan 2 speed slider
 
-                 // Update slider value displays initially based on the slider's actual value after setting it
+                 // Populate controllable speed sliders and update their value displays
                  const fan4Slider = document.getElementById('fan4-speed-input');
                  const fan4ValueSpan = document.getElementById('fan4-speed-value');
-                 if(fan4Slider && fan4ValueSpan) fan4ValueSpan.textContent = fan4Slider.value; // Use slider.value directly
+                 if (fan4Slider) {
+                      fan4Slider.value = settings.fan_4_speed_percent != null ? settings.fan_4_speed_percent : 50; // Default to 50 if null
+                      if(fan4ValueSpan) fan4ValueSpan.textContent = fan4Slider.value; // Update span text
+                 } else { console.warn("Fan 4 slider not found."); }
+
+
                  const fan2Slider = document.getElementById('fan2-speed-input');
                  const fan2ValueSpan = document.getElementById('fan2-speed-value');
-                 if(fan2Slider && fan2ValueSpan) fan2ValueSpan.textContent = fan2Slider.value; // Use slider.value directly
+                 if (fan2Slider) {
+                     fan2Slider.value = settings.fan_2_speed_percent != null ? settings.fan_2_speed_percent : 50; // Default to 50 if null
+                     if(fan2ValueSpan) fan2ValueSpan.textContent = fan2Slider.value; // Update span text
+                 } else { console.warn("Fan 2 slider not found."); }
+
 
                  // Populate non-controllable speed displays
                  updateSpeedDisplay('fan1-speed-display', settings.fan_1_speed_percent);
@@ -290,6 +300,17 @@ document.addEventListener('DOMContentLoaded', () => {
                   updateStatusIndicator('block2-fan3-status', null); updateStatusIndicator('block2-fan2-status', null);
                   updateStatusIndicator('block2-pump2-status', null); updateStatusIndicator('block2-peltier2-status', null);
                   updateSpeedDisplay('fan1-speed-display', null); updateSpeedDisplay('fan3-speed-display', null);
+
+                  // Set controllable sliders to default and N/A display
+                   const fan4Slider = document.getElementById('fan4-speed-input');
+                   const fan4ValueSpan = document.getElementById('fan4-speed-value');
+                   if(fan4Slider) fan4Slider.value = 50;
+                   if(fan4ValueSpan) fan4ValueSpan.textContent = 'N/A';
+
+                   const fan2Slider = document.getElementById('fan2-speed-input');
+                   const fan2ValueSpan = document.getElementById('fan2-speed-value');
+                    if(fan2Slider) fan2Slider.value = 50;
+                    if(fan2ValueSpan) fan2ValueSpan.textContent = 'N/A';
              }
 
 
@@ -299,16 +320,22 @@ document.addEventListener('DOMContentLoaded', () => {
              loadingErrorMessage.classList.add('error');
              settingsFormDiv.style.display = 'none'; // Ensure form stays hidden on error
 
+             // Ensure form elements are hidden and loading message is removed on error
+              loadingMessage.style.display = 'none';
+               settingsEditorDiv.classList.remove('loading');
+
          } finally {
              settingsEditorDiv.classList.remove('loading'); // Hide loading indicator regardless of success/failure
              loadingMessage.style.display = 'none'; // Hide initial loading message
-             settingsFormDiv.style.display = 'block'; // Show form after loading (even on error, but inputs might be blank/N/A)
+             // Show form even if only settings loaded but status failed, or vice versa (unless an error occurred)
+             if (loadingErrorMessage.textContent === '') { // Only show form if no major loading error
+                 settingsFormDiv.style.display = 'block';
+             }
              console.log("Settings page initialization finished."); // Log finish
          }
     }
 
     // --- Function to save settings ---
-    // ... (saveSettings function remains the same, reads from sliders) ...
      function saveSettings() {
         console.log("Save settings button clicked. Initiating save process.");
         const saveButton = document.getElementById('save-settings-button');
@@ -472,7 +499,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Functions for Solar PV Info Page (/pv_info) ---
-    // ... (updatePvInfo function remains the same) ...
     function updatePvInfo() {
         const pvDiv = document.getElementById('pv-data');
         // Find the specific span elements within pvDiv
@@ -537,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pvSunSpan.textContent = 'N/A';
                     pvTimestampSpan.textContent = 'N/A';
                     // You could also show a specific message if preferred
-                    // pvDiv.innerHTML = '<p>No PV data available.</p>';
+                    pvDiv.innerHTML = '<p>No PV data available.</p>'; // Overwrite with message
                 }
             })
             .catch(error => {
@@ -798,15 +824,196 @@ document.addEventListener('DOMContentLoaded', () => {
                                  minute: 'h:mm a',
                                  day: 'MMM d',
                                  week: 'MMM d',
-                                 month: 'MMMm'
-                                }
-                    
-                        }
+                                 month: 'MMM yyyy',
+                                 year: 'yyyy'
+                             },
+                             tooltipFormat: 'MMM d, yyyy h:mm:ss a' // Format for tooltips
+                         },
+                         title: {
+                            display: true,
+                            text: 'Time'
+                         },
+                         adapters: { // Tell Chart.js to use built-in Date adapter (or specify one like date-fns)
+                             date: {}
+                         }
+                    },
+                    y: { // Y-axis is for temperature
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
+                        },
+                        // Optional: set a reasonable min/max based on expected temps
+                        // suggestedMin: 0,
+                        // suggestedMax: 50
                     }
-                }
+                },
+                plugins: {
+                     tooltip: {
+                         mode: 'index', // Show tooltips for all points at a given X value
+                         intersect: false, // Show tooltip even if mouse is not directly over a point
+                     },
+                     title: {
+                        display: true,
+                        text: (filterSensorName && filterSensorName !== '') ? `Temperature Readings for ${filterSensorName}` : 'Temperature Readings by Sensor' // Chart title changes based on filter
+                     },
+                     legend: { // Display dataset labels (sensor names)
+                        display: true
+                     }
+                 }
             }
-        })
-        
+        });
+        console.log("Temperature graph drawn.");
     }
-})
 
+    // --- Event Listeners for Graph Controls ---
+    function setupGraphEventListeners() {
+         const sensorSelect = document.getElementById('sensor-select');
+         const timeRangeSelect = document.getElementById('time-range-select');
+         const refreshGraphButton = document.getElementById('refresh-graph-button');
+
+         if (sensorSelect) {
+             // Fetch and redraw graph when sensor selection changes
+             sensorSelect.addEventListener('change', () => {
+                 fetchTemperatureGraphData();
+             });
+         } else { console.warn("Sensor select dropdown not found for event listener setup."); }
+
+
+         if (timeRangeSelect) {
+             // Fetch and redraw graph when time range changes
+             timeRangeSelect.addEventListener('change', () => {
+                 fetchTemperatureGraphData();
+             });
+         } else { console.warn("Time range select dropdown not found for event listener setup."); }
+
+
+         if (refreshGraphButton) {
+             // Fetch and redraw graph when refresh button is clicked
+             refreshGraphButton.addEventListener('click', () => {
+                 fetchTemperatureGraphData();
+             });
+         } else { console.warn("Refresh graph button not found for event listener setup."); }
+
+         console.log("Graph event listeners setup attempted.");
+    }
+
+
+    // --- Homepage Summary Function ---
+     function updateHomepageSummary() {
+        console.log("On Home page. Initializing summary.");
+        const summaryDiv = document.getElementById('status-summary');
+        if (summaryDiv) {
+             summaryDiv.textContent = 'Loading status...'; // Reset text while fetching
+            // Assumes /status endpoint is NOT under /api based on previous code, adjust if moved
+            fetch(`${API_BASE_URL}/status`)
+                .then(response => response.ok ? response.json() : Promise.reject(`Status fetch failed: ${response.status}`))
+                .then(data => {
+                    console.log("Summary data received:", data);
+                    // Check if the temperatures array exists and has items
+                    let tempSummary = data.temperatures && Array.isArray(data.temperatures) && data.temperatures.length > 0 ? `${data.temperatures.length} temp readings.` : 'No temp readings.';
+                    // Check if solar_data object exists
+                    let solarSummary = data.solar_data ? 'Latest PV data available.' : 'No PV data.';
+                    // Check if current_settings object exists and has setpoint
+                    let settingsSummary = data.current_settings && data.current_settings.temperature_setpoint != null ? `Current setpoint: ${data.current_settings.temperature_setpoint}°C` : 'Settings unavailable.';
+                    summaryDiv.innerHTML = `<p>${tempSummary}</p><p>${solarSummary}</p><p>${settingsSummary}</p>`;
+                })
+                .catch(error => {
+                    console.error('Error fetching summary data:', error); // Log summary fetch error
+                    summaryDiv.innerHTML = `<p class="error">Could not load summary: ${error}</p>`;
+                });
+        } else { console.warn("Summary div not found on homepage."); }
+     }
+
+
+    // --- Initial data load based on the current page ---
+    // REMOVED: const pathname = document.location.pathname; // This line is REMOVED to fix redeclaration error
+
+
+    if (pathname === '/temperatures') {
+        console.log("On temperatures page. Initializing.");
+        updateTemperatures();
+        // Set auto-refresh interval for temperatures page
+        setInterval(updateTemperatures, 3000); // 3 seconds
+    } else if (pathname === '/settings') {
+        console.log("On settings page. Initializing.");
+        initializeSettingsPage(); // Initial load of settings and status
+
+        // Set auto-refresh interval for settings page to update status indicators periodically
+        // This calls the separate status update function
+        setInterval(updateSettingsStatusIndicators, 3000); // 3 seconds (only fetches status)
+
+        // Add event listener for the save button *after* the DOM is fully loaded
+        // Using event delegation on the document for robustness
+        document.addEventListener('click', function(event) {
+             if (event.target && event.target.id === 'save-settings-button') {
+                  console.log("Save button clicked on settings page.");
+                  saveSettings(); // Call save function when button is clicked
+             }
+        });
+
+        // Add event listeners to update slider value display as slider moves
+        const fan4Slider = document.getElementById('fan4-speed-input');
+        const fan4ValueSpan = document.getElementById('fan4-speed-value');
+         if(fan4Slider && fan4ValueSpan) {
+             fan4Slider.addEventListener('input', () => {
+                 fan4ValueSpan.textContent = fan4Slider.value;
+             });
+         } else { console.warn("Fan 4 slider or value span not found for event listener."); }
+
+        const fan2Slider = document.getElementById('fan2-speed-input');
+        const fan2ValueSpan = document.getElementById('fan2-speed-value');
+         if(fan2Slider && fan2ValueSpan) {
+             fan2Slider.addEventListener('input', () => {
+                 fan2ValueSpan.textContent = fan2Slider.value;
+             });
+         } else { console.warn("Fan 2 slider or value span not found for event listener."); }
+
+         // Add Fan 3 slider listener if applicable (assuming Fan 3 speed is controllable)
+         // const fan3Slider = document.getElementById('fan3-speed-input');
+         // const fan3ValueSpan = document.getElementById('fan3-speed-value');
+         //  if(fan3Slider && fan3ValueSpan) {
+         //      fan3Slider.addEventListener('input', () => {
+         //          fan3ValueSpan.textContent = fan3Slider.value;
+         //      });
+         //  } else { console.warn("Fan 3 slider or value span not found for event listener."); }
+
+
+    } else if (pathname === '/pv_info') {
+        console.log("On PV Info page. Initializing.");
+        updatePvInfo();
+        // Set auto-refresh interval for PV info page
+        setInterval(updatePvInfo, 3000); // 3 seconds
+    }
+    // Code for the homepage summary (loads on root path '/')
+    else if (pathname === '/') {
+        console.log("On Home page. Initializing summary.");
+        updateHomepageSummary(); // Initial load of summary
+        // Set auto-refresh interval for homepage summary
+        setInterval(updateHomepageSummary, 3000); // 3 seconds
+
+    }
+    // --- Logic for Temperature Graphs Page (/temperature_graphs) ---
+    else if (pathname === '/temperature_graphs') {
+         console.log("On Temperature Graphs page. Initializing.");
+         // Populate the sensor dropdown first
+         populateSensorSelect().then(() => {
+             // Then fetch data and draw the graph based on initial selections
+             // This call will be auto-refreshed by the interval below
+              fetchTemperatureGraphData();
+
+             // Add event listeners to controls after elements are available
+              setupGraphEventListeners();
+
+             // Set auto-refresh interval for the graph data
+             // Note: Auto-refreshing a graph frequently might be resource-intensive
+             // Consider the performance impact, especially with large datasets
+             setInterval(fetchTemperatureGraphData, 3000); // 3 seconds
+
+         });
+
+    }
+    // Add an else block for debugging if none match a known path
+    else {
+        console.log("Unknown page path:", pathname, ". No specific data functions initialized.");
+    }
+});
