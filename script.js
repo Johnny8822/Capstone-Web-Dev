@@ -799,13 +799,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                  day: 'MMM d',
                                  week: 'MMM d',
                                  month: 'MMMm'
-                                },
+                                }
                     
-                        }, 
+                        }
                     }
-                },
+                }
             }
-        });
+        })
         console.log("Temperature graph drawn successfully.");
     }
 })
