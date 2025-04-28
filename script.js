@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         })
-        console.log("Temperature graph drawn successfully.");
+        
     }
 })
 
