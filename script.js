@@ -746,11 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Destroy previous chart instance if it exists to prevent duplicates
         if (temperatureChartInstance) {
+            console.log("Destroying previous chart instance."); // Add logging to confirm destroy is called
             temperatureChartInstance.destroy();
+            temperatureChartInstance = null; // <-- Explicitly set to null after destroying
+        } else {
+             console.log("No previous chart instance to destroy."); // Add logging
         }
 
+
         // --- Data Processing for Chart.js ---
-        // We need to group data by sensor name for Chart.js datasets
+        // ... (rest of your data processing code remains the same) ...
         const dataBySensor = {};
         if (readings && Array.isArray(readings)) {
              readings.forEach(reading => {
@@ -769,99 +774,93 @@ document.addEventListener('DOMContentLoaded', () => {
              });
         }
 
-
-        // Sort data points by timestamp for each sensor
+        // Sort data points by timestamp
         Object.values(dataBySensor).forEach(dataPoints => {
             dataPoints.sort((a, b) => a.x.getTime() - b.x.getTime());
         });
 
-        // Create Chart.js datasets
+
+        // Create Chart.js datasets (remains the same)
         const datasets = Object.keys(dataBySensor).map((sensorName, index) => {
-            // Assign a color based on index (you can use a color palette)
+            // Assign a color based on index
             const colors = [
-                 'rgb(255, 99, 132)', // red
-                 'rgb(54, 162, 235)', // blue
-                 'rgb(255, 205, 86)', // yellow
-                 'rgb(75, 192, 192)', // green
-                 'rgb(153, 102, 255)', // purple
-                 'rgb(255, 159, 64)', // orange
-                 'rgb(201, 203, 207)' // grey
-                 // Add more colors if you have more sensors
+                 'rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)',
+                 'rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)',
+                 'rgb(201, 203, 207)'
             ];
-             const color = colors[index % colors.length]; // Cycle through colors
+            const color = colors[index % colors.length];
 
             return {
-                label: sensorName, // Dataset label is the sensor name
-                data: dataBySensor[sensorName], // Array of {x: Date, y: number} objects
+                label: sensorName,
+                data: dataBySensor[sensorName],
                 borderColor: color,
-                backgroundColor: color + '40', // Add transparency for fill area (optional)
-                tension: 0.1, // Smooth the lines (optional)
-                fill: false, // Don't fill area under the line (optional)
-                 pointRadius: 3, // Size of data points (optional)
-                 pointHoverRadius: 5 // Size of data points on hover (optional)
+                backgroundColor: color + '40',
+                tension: 0.1,
+                fill: false,
+                pointRadius: 3,
+                pointHoverRadius: 5
             };
         });
 
+         // If no datasets, show a message or clear canvas
+         if (datasets.length === 0 || datasets.every(d => d.data.length === 0)) {
+              console.log("No data available to draw graph.");
+              // Optionally clear the canvas or show a message
+              const ctx = canvasElement.getContext('2d');
+              ctx.clearRect(0, 0, canvasElement.width, canvasElement.height); // Clear the canvas
+              // You might want to add text like "No data available" on the canvas
+              return; // Exit function if no data
+         }
+
+
         // --- Chart.js Configuration ---
         const ctx = canvasElement.getContext('2d');
+        // Create a new chart instance and assign it to the variable
         temperatureChartInstance = new Chart(ctx, {
-            type: 'line', // Use a line chart for time series data
+            type: 'line',
             data: {
-                datasets: datasets // Use the prepared datasets
+                datasets: datasets
             },
             options: {
-                 responsive: true, // Make the chart responsive
-                 maintainAspectRatio: false, // Allow controlling aspect ratio via CSS
-                 aspectRatio: 4, // You can set an aspect ratio, or control size via CSS
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 aspectRatio: 4,
                  scales: {
-                    x: { // X-axis is for time
-                        type: 'time', // Use 'time' scale for timestamps
+                    x: {
+                        type: 'time',
                          time: {
                              parser: false, // Data is already Date objects
-                             unit: 'hour', // Start with hour unit, Chart.js will auto-adjust
-                             displayFormats: { // How to display time labels
+                             unit: 'hour',
+                             displayFormats: {
                                  hour: 'MMM d, h:mm a',
-                                 minute: 'h:mm a',
+                                 minute: 'h:mm:ss a', // Added seconds for more precision
                                  day: 'MMM d',
                                  week: 'MMM d',
-                                 month: 'MMM yyyy',
+                                 month: 'MMM yyyy', // Added year
                                  year: 'yyyy'
                              },
                              tooltipFormat: 'MMM d, yyyy h:mm:ss a' // Format for tooltips
                          },
-                         title: {
-                            display: true,
-                            text: 'Time'
-                         },
-                         adapters: { // Tell Chart.js to use built-in Date adapter (or specify one like date-fns)
-                             date: {}
-                         }
+                         title: { display: true, text: 'Time' },
+                         adapters: { date: {} }
                     },
-                    y: { // Y-axis is for temperature
-                        title: {
-                            display: true,
-                            text: 'Temperature (°C)'
-                        },
-                        // Optional: set a reasonable min/max based on expected temps
-                        // suggestedMin: 0,
-                        // suggestedMax: 50
+                    y: {
+                        title: { display: true, text: 'Temperature (°C)' },
+                        // suggestedMin: 0, suggestedMax: 50
                     }
                 },
                 plugins: {
-                     tooltip: {
-                         mode: 'index', // Show tooltips for all points at a given X value
-                         intersect: false, // Show tooltip even if mouse is not directly over a point
-                     },
+                     tooltip: { mode: 'index', intersect: false },
                      title: {
                         display: true,
-                        text: (filterSensorName && filterSensorName !== '') ? `Temperature Readings for ${filterSensorName}` : 'Temperature Readings by Sensor' // Chart title changes based on filter
+                        text: (filterSensorName && filterSensorName !== '') ? `Temperature Readings for ${filterSensorName}` : 'Temperature Readings by Sensor'
                      },
-                     legend: { // Display dataset labels (sensor names)
-                        display: true
-                     }
+                     legend: { display: true }
                  }
             }
         });
+        console.log("New temperature graph instance created."); // Add logging
+
         console.log("Temperature graph drawn.");
     }
 
