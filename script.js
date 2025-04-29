@@ -736,26 +736,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Function to draw/update the Chart.js graph
+    // Function to draw/update the Chart.js graph
     function drawTemperatureGraph(readings, canvasElement, filterSensorName = null) {
-        console.log("Drawing temperature graph...");
+        console.log(">> drawTemperatureGraph called. Initial temperatureChartInstance state:", temperatureChartInstance); // Log variable state at function start
 
         if (!canvasElement) {
-             console.error("Canvas element not found for drawing graph.");
+             console.error("drawTemperatureGraph: Canvas element not found.");
              return;
         }
 
-        // Destroy previous chart instance if it exists to prevent duplicates
+        // Destroy previous chart instance if it exists
         if (temperatureChartInstance) {
-            console.log("Destroying previous chart instance."); // Add logging to confirm destroy is called
-            temperatureChartInstance.destroy();
-            temperatureChartInstance = null; // <-- Explicitly set to null after destroying
+            console.log(">> drawTemperatureGraph: Previous chart instance exists. Attempting to destroy.");
+            try { // Add try-catch around destroy in case it throws unexpectedly
+                temperatureChartInstance.destroy();
+                console.log(">> drawTemperatureGraph: Previous chart instance destroy() called successfully.");
+            } catch (e) {
+                 console.error(">> drawTemperatureGraph: Error during chart instance destruction:", e);
+                 // Continue execution even if destroy throws, to attempt creating a new chart
+            }
+            temperatureChartInstance = null; // <-- Explicitly set to null after attempting destroy
+             console.log(">> drawTemperatureGraph: temperatureChartInstance variable set to null.");
         } else {
-             console.log("No previous chart instance to destroy."); // Add logging
+             console.log(">> drawTemperatureGraph: No previous chart instance to destroy (temperatureChartInstance is null).");
         }
 
 
         // --- Data Processing for Chart.js ---
-        // ... (rest of your data processing code remains the same) ...
+        console.log(">> drawTemperatureGraph: Starting data processing.");
         const dataBySensor = {};
         if (readings && Array.isArray(readings)) {
              readings.forEach(reading => {
@@ -764,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      dataBySensor[sensor] = [];
                  }
                  // Store timestamp as Date object for Chart.js time scale
-                 const timestampDate = parseISOTimestamp(reading.timestamp);
+                 const timestampDate = parseISOTimestamp(reading.timestamp); // Use the helper function
                  if (timestampDate && reading.temperature != null) { // Ensure timestamp is valid and temperature is not null
                      dataBySensor[sensor].push({
                          x: timestampDate,
@@ -772,96 +780,132 @@ document.addEventListener('DOMContentLoaded', () => {
                      });
                  }
              });
+        } else {
+             console.warn(">> drawTemperatureGraph: Received no readings or invalid readings format.");
         }
 
-        // Sort data points by timestamp
+
+        // Sort data points by timestamp for each sensor
         Object.values(dataBySensor).forEach(dataPoints => {
             dataPoints.sort((a, b) => a.x.getTime() - b.x.getTime());
         });
+         console.log(">> drawTemperatureGraph: Data processing finished. Data by sensor:", dataBySensor);
 
 
-        // Create Chart.js datasets (remains the same)
+        // Create Chart.js datasets
         const datasets = Object.keys(dataBySensor).map((sensorName, index) => {
-            // Assign a color based on index
+            // Assign a color based on index (you can use a color palette)
             const colors = [
                  'rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)',
                  'rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)',
                  'rgb(201, 203, 207)'
             ];
-            const color = colors[index % colors.length];
+             const color = colors[index % colors.length]; // Cycle through colors
 
             return {
-                label: sensorName,
-                data: dataBySensor[sensorName],
+                label: sensorName, // Dataset label is the sensor name
+                data: dataBySensor[sensorName], // Array of {x: Date, y: number} objects
                 borderColor: color,
-                backgroundColor: color + '40',
-                tension: 0.1,
-                fill: false,
-                pointRadius: 3,
-                pointHoverRadius: 5
+                backgroundColor: color + '40', // Add transparency for fill area (optional)
+                tension: 0.1, // Smooth the lines (optional)
+                fill: false, // Don't fill area under the line (optional)
+                 pointRadius: 3, // Size of data points (optional)
+                 pointHoverRadius: 5 // Size of data points on hover (optional)
             };
         });
+         console.log(">> drawTemperatureGraph: Datasets created:", datasets);
 
-         // If no datasets, show a message or clear canvas
+
+         // If no datasets with data, clear the canvas and show a message
          if (datasets.length === 0 || datasets.every(d => d.data.length === 0)) {
-              console.log("No data available to draw graph.");
-              // Optionally clear the canvas or show a message
+              console.warn(">> drawTemperatureGraph: No data available in datasets to draw graph.");
               const ctx = canvasElement.getContext('2d');
               ctx.clearRect(0, 0, canvasElement.width, canvasElement.height); // Clear the canvas
-              // You might want to add text like "No data available" on the canvas
+               // You might want to add text like "No data available" on the canvas
+              document.getElementById('graph-status-message').textContent = 'No data available for the selected filters.';
+              document.getElementById('graph-status-message').style.color = 'orange';
               return; // Exit function if no data
+         } else {
+              document.getElementById('graph-status-message').textContent = ''; // Clear message if data is available
          }
 
 
         // --- Chart.js Configuration ---
+        console.log(">> drawTemperatureGraph: Attempting to create new chart instance on canvas ID:", canvasElement.id);
         const ctx = canvasElement.getContext('2d');
-        // Create a new chart instance and assign it to the variable
-        temperatureChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: datasets
-            },
-            options: {
-                 responsive: true,
-                 maintainAspectRatio: false,
-                 aspectRatio: 4,
-                 scales: {
-                    x: {
-                        type: 'time',
-                         time: {
-                             parser: false, // Data is already Date objects
-                             unit: 'hour',
-                             displayFormats: {
-                                 hour: 'MMM d, h:mm a',
-                                 minute: 'h:mm:ss a', // Added seconds for more precision
-                                 day: 'MMM d',
-                                 week: 'MMM d',
-                                 month: 'MMM yyyy', // Added year
-                                 year: 'yyyy'
-                             },
-                             tooltipFormat: 'MMM d, yyyy h:mm:ss a' // Format for tooltips
-                         },
-                         title: { display: true, text: 'Time' },
-                         adapters: { date: {} }
-                    },
-                    y: {
-                        title: { display: true, text: 'Temperature (°C)' },
-                        // suggestedMin: 0, suggestedMax: 50
-                    }
-                },
-                plugins: {
-                     tooltip: { mode: 'index', intersect: false },
-                     title: {
-                        display: true,
-                        text: (filterSensorName && filterSensorName !== '') ? `Temperature Readings for ${filterSensorName}` : 'Temperature Readings by Sensor'
-                     },
-                     legend: { display: true }
-                 }
-            }
-        });
-        console.log("New temperature graph instance created."); // Add logging
 
-        console.log("Temperature graph drawn.");
+        try { // Add try-catch around new Chart creation to catch the "Canvas is already in use" error specifically
+             temperatureChartInstance = new Chart(ctx, {
+                type: 'line', // Use a line chart for time series data
+                data: {
+                    datasets: datasets // Use the prepared datasets
+                },
+                options: {
+                     responsive: true, // Make the chart responsive
+                     maintainAspectRatio: false, // Allow controlling aspect ratio via CSS
+                     aspectRatio: 4, // You can set an aspect ratio, or control size via CSS
+                     scales: {
+                        x: { // X-axis is for time
+                            type: 'time', // Use 'time' scale for timestamps
+                             time: {
+                                 parser: false, // Data is already Date objects
+                                 unit: 'hour', // Start with hour unit, Chart.js will auto-adjust
+                                 displayFormats: { // How to display time labels
+                                     hour: 'MMM d, h:mm a',
+                                     minute: 'h:mm:ss a', // Added seconds for more precision
+                                     day: 'MMM d',
+                                     week: 'MMM d',
+                                     month: 'MMM yyyy', // Added year
+                                     year: 'yyyy'
+                                 },
+                                 tooltipFormat: 'MMM d, yyyy h:mm:ss a' // Format for tooltips
+                             },
+                             title: {
+                                display: true,
+                                text: 'Time'
+                             },
+                             adapters: { // Tell Chart.js to use built-in Date adapter (or specify one like date-fns)
+                                 date: {}
+                             }
+                        },
+                        y: { // Y-axis is for temperature
+                            title: {
+                                display: true,
+                                text: 'Temperature (°C)'
+                            },
+                            // Optional: set a reasonable min/max based on expected temps
+                            // suggestedMin: 0,
+                            // suggestedMax: 50
+                        }
+                    },
+                    plugins: {
+                         tooltip: {
+                             mode: 'index', // Show tooltips for all points at a given X value
+                             intersect: false, // Show tooltip even if mouse is not directly over a point
+                         },
+                         title: {
+                            display: true,
+                            text: (filterSensorName && filterSensorName !== '') ? `Temperature Readings for ${filterSensorName}` : 'Temperature Readings by Sensor' // Chart title changes based on filter
+                         },
+                         legend: { // Display dataset labels (sensor names)
+                            display: true
+                         }
+                     }
+                }
+            });
+            console.log(">> drawTemperatureGraph: New temperature graph instance created successfully."); // Log success
+            // Clear any previous error messages related to drawing
+            document.getElementById('graph-status-message').textContent = '';
+             document.getElementById('graph-status-message').style.color = 'black';
+
+        } catch (e) {
+             console.error(">> drawTemperatureGraph: Error creating new chart instance:", e); // Log creation error
+             // Display the error message on the page
+             document.getElementById('graph-status-message').textContent = `Error loading graph data. ${e.message}`;
+             document.getElementById('graph-status-message').style.color = 'red';
+        }
+
+        console.log(">> drawTemperatureGraph finished."); // Log function end
     }
 
     // --- Event Listeners for Graph Controls ---
