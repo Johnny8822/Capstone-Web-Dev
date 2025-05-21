@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANT: Replace with your actual VM IP address
-    const API_BASE_URL = 'http://192.168.100.246:8000'; // CHANGE THIS to your VM's IP and port
+    const API_BASE_URL = 'http://172.20.10.5:8000'; // CHANGE THIS to your VM's IP and port
 
     // Get the pathname to identify the current page
     const pathname = document.location.pathname; // <-- Keep this declaration
